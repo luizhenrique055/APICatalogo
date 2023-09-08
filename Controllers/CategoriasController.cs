@@ -17,7 +17,7 @@ public class CategoriasController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("listarComProdutos")]
+    [HttpGet("listarCategoriasComProdutos")]
     public async Task<ActionResult<IEnumerable<Categoria>>> ListarCategoriasComProdutosAsync()
     {
         // include faz referencia a outro objeto, nesse caso chama a categoria
@@ -28,7 +28,7 @@ public class CategoriasController : ControllerBase
         .ToListAsync();
     }
 
-    [HttpGet("listar")]
+    [HttpGet("listarCategorias")]
     public async Task<ActionResult<IEnumerable<Categoria>>> ListarCategoriasAsync()
     {   
         // AsNoTracking otimiza o retorno das consultas sem alteração
@@ -36,7 +36,7 @@ public class CategoriasController : ControllerBase
         return await _context.Categorias.AsNoTracking().ToListAsync();
     }
 
-    [HttpGet("obterPorId/{id:int:min(1)}", Name = "obterPorId")]
+    [HttpGet("obterCategoriaPorId/{id:int:min(1)}", Name = "obterCategoriaPorId")]
     public async Task<ActionResult<Categoria>> Get(int id)
     {
         var categoria = await _context.Categorias.FirstOrDefaultAsync(c => c.CategoriaId == id);
@@ -49,7 +49,7 @@ public class CategoriasController : ControllerBase
         return Ok(categoria);
     }
 
-    [HttpPost("criar")]
+    [HttpPost("criarCategoria")]
     public ActionResult CriarCategoria(Categoria categoria)
     {
         if (categoria is null)
@@ -60,10 +60,10 @@ public class CategoriasController : ControllerBase
         _context.Categorias.Add(categoria);
         _context.SaveChanges();
 
-        return new CreatedAtRouteResult("obterPorId", new { id = categoria.CategoriaId }, categoria);
+        return new CreatedAtRouteResult("obterCategoriaPorId", new { id = categoria.CategoriaId }, categoria);
     }
 
-    [HttpPut("modificar/{id:int}")]
+    [HttpPut("modificarCategoria/{id:int}")]
     public ActionResult ModificarCategoria(int id, Categoria categoria)
     {
         if (id != categoria.CategoriaId)
@@ -77,7 +77,7 @@ public class CategoriasController : ControllerBase
         return Ok(categoria);
     }
 
-    [HttpDelete("deletar/{id:int}")]
+    [HttpDelete("deletarCategoria/{id:int}")]
     public ActionResult<Categoria> DeletarCategoria(int id)
     {
         var categoria = _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
