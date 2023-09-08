@@ -29,17 +29,17 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Categoria>> Get()
+    public async Task<ActionResult<IEnumerable<Categoria>>> Get()
     {   
         // AsNoTracking otimiza o retorno das consultas sem alteração
         // Não mapeando as entidades no cache
-        return _context.Categorias.AsNoTracking().ToList();
+        return await _context.Categorias.AsNoTracking().ToListAsync();
     }
 
-    [HttpGet("{id:int}", Name = "ObterCategoria")]
-    public ActionResult<Categoria> Get(int id)
+    [HttpGet("{id:int:min(1)}", Name = "ObterCategoria")]
+    public async Task<ActionResult<Categoria>> Get(int id)
     {
-        var categoria = _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
+        var categoria = await _context.Categorias.FirstOrDefaultAsync(c => c.CategoriaId == id);
 
         if (categoria is null)
         {
