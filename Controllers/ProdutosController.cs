@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ProdutosController : ControllerBase
     {
@@ -17,10 +17,10 @@ namespace APICatalogo.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Produto>> Get()
+        [HttpGet("listarProdutos")]
+        public async Task<ActionResult<IEnumerable<Produto>>> ListarProdutosAsync()
         {
-            var produtos = _context.Produtos.ToList();
+            var produtos = await _context.Produtos.ToListAsync();
 
             if (produtos is null)
             {
@@ -30,10 +30,10 @@ namespace APICatalogo.Controllers
             return Ok(produtos);
         }
 
-        [HttpGet("{id:int}", Name = "ObterProduto")]
-        public ActionResult<Produto> Get(int id)
+        [HttpGet("obterProdutoPorId/{id:int}", Name = "obterProdutosPorId")]
+        public async Task<ActionResult<Produto>> ObterProdutoPorIdAsync(int id)
         {
-            var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+            var produto = await _context.Produtos.FirstOrDefaultAsync(p => p.ProdutoId == id);
 
             if (produto is null)
             {
@@ -43,8 +43,8 @@ namespace APICatalogo.Controllers
             return produto;
         }
 
-        [HttpPost]
-        public ActionResult Post(Produto produto)
+        [HttpPost("criarProduto")]
+        public ActionResult CriarProduto(Produto produto)
         {
 
             if (produto is null)
@@ -55,12 +55,12 @@ namespace APICatalogo.Controllers
             _context.Produtos.Add(produto);
             _context.SaveChanges();
 
-            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, produto);
+            return new CreatedAtRouteResult("obterProdutosPorId", new { id = produto.ProdutoId }, produto);
         }
 
 
-        [HttpPut("{id:int}")]
-        public ActionResult Put(int id, Produto produto)
+        [HttpPut("modificarProduto/{id:int}")]
+        public ActionResult ModificarProduto(int id, Produto produto)
         {
             if (produto is null)
             {
@@ -78,8 +78,8 @@ namespace APICatalogo.Controllers
             return Ok(produto);
         }
 
-        [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id){
+        [HttpDelete("deletarProduto/{id:int}")]
+        public ActionResult DeletarProdutoPorId(int id){
             var produto = _context.Produtos.FirstOrDefault(p=> p.ProdutoId == id);
 
             if (produto is null){
@@ -91,6 +91,5 @@ namespace APICatalogo.Controllers
 
             return Ok("Produto excluido com exito.");
         }
-
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class CategoriasController : ControllerBase
 {
@@ -17,29 +17,29 @@ public class CategoriasController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("produtos")]
-    public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
+    [HttpGet("listarCategoriasComProdutos")]
+    public async Task<ActionResult<IEnumerable<Categoria>>> ListarCategoriasComProdutosAsync()
     {
         // include faz referencia a outro objeto, nesse caso chama a categoria
         // junto os produtos dessa categoria
         // necessitando controle de referencia ciclica de serialização
-        return _context.Categorias.Include(p => p.Produtos)
+        return await _context.Categorias.Include(p => p.Produtos)
         .Where(p => p.CategoriaId <= 30)
-        .ToList();
+        .ToListAsync();
     }
 
-    [HttpGet]
-    public ActionResult<IEnumerable<Categoria>> Get()
+    [HttpGet("listarCategorias")]
+    public async Task<ActionResult<IEnumerable<Categoria>>> ListarCategoriasAsync()
     {   
         // AsNoTracking otimiza o retorno das consultas sem alteração
         // Não mapeando as entidades no cache
-        return _context.Categorias.AsNoTracking().ToList();
+        return await _context.Categorias.AsNoTracking().ToListAsync();
     }
 
-    [HttpGet("{id:int}", Name = "ObterCategoria")]
-    public ActionResult<Categoria> Get(int id)
+    [HttpGet("obterCategoriaPorId/{id:int:min(1)}", Name = "obterCategoriaPorId")]
+    public async Task<ActionResult<Categoria>> Get(int id)
     {
-        var categoria = _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
+        var categoria = await _context.Categorias.FirstOrDefaultAsync(c => c.CategoriaId == id);
 
         if (categoria is null)
         {
@@ -49,22 +49,22 @@ public class CategoriasController : ControllerBase
         return Ok(categoria);
     }
 
-    [HttpPost]
-    public ActionResult Post(Categoria categoria)
+    [HttpPost("criarCategoria")]
+    public ActionResult CriarCategoria(Categoria categoria)
     {
         if (categoria is null)
         {
-            return BadRequest();
+            return BadRequest("Categoria vazia.");
         }
 
         _context.Categorias.Add(categoria);
         _context.SaveChanges();
 
-        return new CreatedAtRouteResult("ObterCategoria", new { id = categoria.CategoriaId }, categoria);
+        return new CreatedAtRouteResult("obterCategoriaPorId", new { id = categoria.CategoriaId }, categoria);
     }
 
-    [HttpPut("{id:int}")]
-    public ActionResult Put(int id, Categoria categoria)
+    [HttpPut("modificarCategoria/{id:int}")]
+    public ActionResult ModificarCategoria(int id, Categoria categoria)
     {
         if (id != categoria.CategoriaId)
         {
@@ -77,8 +77,8 @@ public class CategoriasController : ControllerBase
         return Ok(categoria);
     }
 
-    [HttpDelete("{id:int}")]
-    public ActionResult<Categoria> Delete(int id)
+    [HttpDelete("deletarCategoria/{id:int}")]
+    public ActionResult<Categoria> DeletarCategoria(int id)
     {
         var categoria = _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
 
@@ -92,8 +92,4 @@ public class CategoriasController : ControllerBase
 
         return Ok("Categoria removida com sucesso!");
     }
-
-
-
-
 }
