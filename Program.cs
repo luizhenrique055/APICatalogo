@@ -22,9 +22,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-// Adicionando migrations na inicialização do Docker
-using (var scope = app.Services.CreateScope())
+// Configura o ambiente escolhido
+if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+
+    // Adicionando migrations na inicialização do Docker
+    using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<AppDbContext>();
@@ -32,13 +42,6 @@ using (var scope = app.Services.CreateScope())
     {
         context.Database.Migrate();
     }
-}
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
